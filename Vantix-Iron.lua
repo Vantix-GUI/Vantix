@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -15,7 +16,7 @@ local Theme = {
 	ElementBackground = Color3.fromRGB(22, 22, 26),
 	ElementHover = Color3.fromRGB(30, 30, 36),
 	
-	Accent = Color3.fromRGB(69, 0, 131), -- Vantix Purple
+	Accent = Color3.fromRGB(200, 30, 30), -- Changed to Iron Man Red!
 	
 	Text = Color3.fromRGB(255, 255, 255),
 	TextMuted = Color3.fromRGB(150, 150, 160),
@@ -153,7 +154,6 @@ function Vantix.CreateWindow(titleText)
 	TopBar.Text = ""
 	TopBar.Parent = MainFrame
 
-	-- Vantix Logo ImageLabel
 	local Logo = Instance.new("ImageLabel")
 	Logo.Name = "VantixLogo"
 	Logo.Size = UDim2.new(0, 26, 0, 26)
@@ -161,7 +161,7 @@ function Vantix.CreateWindow(titleText)
 	Logo.BackgroundTransparency = 1
 	Logo.Parent = TopBar
 	
-	Window.LogoImage = Logo -- Exposed for the auto-downloader
+	Window.LogoImage = Logo
 
 	local Title = Instance.new("TextLabel")
 	Title.Size = UDim2.new(1, -100, 1, 0)
@@ -244,7 +244,7 @@ function Vantix.CreateWindow(titleText)
 	ContentContainer.Parent = MainFrame
 
 	-- // WINDOW METHODS // --
-	function Window.CreateTab(tabName, iconId)
+	function Window.CreateTab(tabName)
 		local Tab = {}
 		
 		local TabButton = Instance.new("TextButton")
@@ -258,21 +258,9 @@ function Vantix.CreateWindow(titleText)
 		TabBtnCorner.CornerRadius = Theme.CornerRadius
 		TabBtnCorner.Parent = TabButton
 
-		local TextOffset = 15
-		if iconId then
-			local Icon = Instance.new("ImageLabel")
-			Icon.Size = UDim2.new(0, 18, 0, 18)
-			Icon.Position = UDim2.new(0, 10, 0.5, -9)
-			Icon.BackgroundTransparency = 1
-			Icon.Image = iconId
-			Icon.ImageColor3 = Theme.TextMuted
-			Icon.Parent = TabButton
-			TextOffset = 35 
-		end
-
 		local TabLabel = Instance.new("TextLabel")
-		TabLabel.Size = UDim2.new(1, -TextOffset, 1, 0)
-		TabLabel.Position = UDim2.new(0, TextOffset, 0, 0)
+		TabLabel.Size = UDim2.new(1, -15, 1, 0)
+		TabLabel.Position = UDim2.new(0, 15, 0, 0)
 		TabLabel.BackgroundTransparency = 1
 		TabLabel.Text = tabName
 		TabLabel.TextColor3 = Theme.TextMuted
@@ -307,9 +295,6 @@ function Vantix.CreateWindow(titleText)
 				otherTab.Page.Visible = false
 				Tween(otherTab.Button, {BackgroundColor3 = Theme.SidebarBackground}, 0.3)
 				Tween(otherTab.Label, {TextColor3 = Theme.TextMuted}, 0.3)
-				if otherTab.Button:FindFirstChild("ImageLabel") then
-					Tween(otherTab.Button.ImageLabel, {ImageColor3 = Theme.TextMuted}, 0.3)
-				end
 			end
 			
 			TabPage.Visible = true
@@ -318,16 +303,12 @@ function Vantix.CreateWindow(titleText)
 
 			Tween(TabButton, {BackgroundColor3 = Theme.Accent}, 0.3)
 			Tween(TabLabel, {TextColor3 = Theme.Text}, 0.3)
-			if TabButton:FindFirstChild("ImageLabel") then
-				Tween(TabButton.ImageLabel, {ImageColor3 = Theme.Text}, 0.3)
-			end
 		end)
 
 		if #Window.Tabs == 0 then
 			TabPage.Visible = true
 			TabButton.BackgroundColor3 = Theme.Accent
 			TabLabel.TextColor3 = Theme.Text
-			if TabButton:FindFirstChild("ImageLabel") then TabButton.ImageLabel.ImageColor3 = Theme.Text end
 		end
 
 		table.insert(Window.Tabs, {Button = TabButton, Label = TabLabel, Page = TabPage})
@@ -426,96 +407,6 @@ function Vantix.CreateWindow(titleText)
 			end)
 		end
 
-		-- // COMPONENT: SLIDER // --
-		function Tab.CreateSlider(sliderText, min, max, default, callback)
-			local dragging = false
-			local currentValue = default or min
-
-			local SliderFrame = Instance.new("Frame")
-			SliderFrame.Size = UDim2.new(1, -30, 0, 55)
-			SliderFrame.BackgroundColor3 = Theme.ElementBackground
-			SliderFrame.Parent = TabPage
-
-			local SldCorner = Instance.new("UICorner")
-			SldCorner.CornerRadius = Theme.CornerRadius
-			SldCorner.Parent = SliderFrame
-			
-			local SldStroke = Instance.new("UIStroke")
-			SldStroke.Color = Theme.Stroke
-			SldStroke.Parent = SliderFrame
-
-			local Label = Instance.new("TextLabel")
-			Label.Size = UDim2.new(1, -30, 0, 25)
-			Label.Position = UDim2.new(0, 15, 0, 5)
-			Label.BackgroundTransparency = 1
-			Label.Text = sliderText
-			Label.TextColor3 = Theme.Text
-			Label.Font = Enum.Font.GothamSemibold
-			Label.TextSize = 13
-			Label.TextXAlignment = Enum.TextXAlignment.Left
-			Label.Parent = SliderFrame
-
-			local ValueLabel = Instance.new("TextLabel")
-			ValueLabel.Size = UDim2.new(0, 50, 0, 25)
-			ValueLabel.Position = UDim2.new(1, -65, 0, 5)
-			ValueLabel.BackgroundTransparency = 1
-			ValueLabel.Text = tostring(currentValue)
-			ValueLabel.TextColor3 = Theme.TextMuted
-			ValueLabel.Font = Enum.Font.GothamSemibold
-			ValueLabel.TextSize = 13
-			ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
-			ValueLabel.Parent = SliderFrame
-
-			local TrackBg = Instance.new("TextButton")
-			TrackBg.Size = UDim2.new(1, -30, 0, 6)
-			TrackBg.Position = UDim2.new(0, 15, 0, 35)
-			TrackBg.BackgroundColor3 = Theme.MainBackground
-			TrackBg.Text = ""
-			TrackBg.AutoButtonColor = false
-			TrackBg.Parent = SliderFrame
-
-			local TrackCorner = Instance.new("UICorner")
-			TrackCorner.CornerRadius = UDim.new(1, 0)
-			TrackCorner.Parent = TrackBg
-
-			local TrackFill = Instance.new("Frame")
-			local startPercent = (currentValue - min) / (max - min)
-			TrackFill.Size = UDim2.new(startPercent, 0, 1, 0)
-			TrackFill.BackgroundColor3 = Theme.Accent
-			TrackFill.Parent = TrackBg
-
-			local FillCorner = Instance.new("UICorner")
-			FillCorner.CornerRadius = UDim.new(1, 0)
-			FillCorner.Parent = TrackFill
-
-			local function updateSlider(input)
-				local percent = math.clamp((input.Position.X - TrackBg.AbsolutePosition.X) / TrackBg.AbsoluteSize.X, 0, 1)
-				currentValue = math.floor(min + ((max - min) * percent))
-				ValueLabel.Text = tostring(currentValue)
-				Tween(TrackFill, {Size = UDim2.new(percent, 0, 1, 0)}, 0.1)
-				if callback then task.spawn(callback, currentValue) end
-			end
-
-			TrackBg.InputBegan:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-					dragging = true
-					updateSlider(input)
-				end
-			end)
-
-			UserInputService.InputEnded:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-					dragging = false
-				end
-			end)
-
-			UserInputService.InputChanged:Connect(function(input)
-				if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-					updateSlider(input)
-				end
-			end)
-		end
-
 		-- // COMPONENT: STRING INPUT // --
 		function Tab.CreateInput(inputText, placeholder, callback)
 			local InputFrame = Instance.new("Frame")
@@ -576,39 +467,74 @@ function Vantix.CreateWindow(titleText)
 	return Window
 end
 
+
 -----------------------------------------------------------------
--- // EXAMPLE VANTIX USAGE // --
+-- // IRON MAN SCRIPT INTEGRATION // --
 -----------------------------------------------------------------
-local MyWindow = Vantix.CreateWindow("Vantix Hub")
 
--- Notice I used a REAL single-image ID here (11326670068 = Home Icon) so there is no static!
-local MainTab = MyWindow.CreateTab("Home", "rbxassetid://11326670068")
+-- Safely wait for the Iron Man Events folder
+local Assets = ReplicatedStorage:WaitForChild("Assets", 10)
+if not Assets then warn("Iron Man Assets not found!") return end
 
--- Or you can create a tab with NO icon by just leaving it blank:
-local SettingsTab = MyWindow.CreateTab("Settings")
+local EventsFolder = Assets:WaitForChild("Characters"):WaitForChild("IronMan"):WaitForChild("Events")
 
-MainTab.CreateButton("Print Hello", function() print("Hello from Vantix!") end)
-MainTab.CreateToggle("Aura ESP", false, function(state) print("ESP is:", state) end)
-MainTab.CreateSlider("JumpPower", 50, 200, 50, function(value) print("JumpPower:", value) end)
-SettingsTab.CreateInput("Target Player", "Username...", function(text) print("Targeting:", text) end)
+-- Create the Vantix Window
+local IronManWindow = Vantix.CreateWindow("Iron Man Panel")
+
+-- Create Tabs
+local SuitControls = IronManWindow.CreateTab("Suit Controls")
+local Actions = IronManWindow.CreateTab("Actions")
+
+-- // SUIT CONTROLS TAB // --
+
+SuitControls.CreateToggle("Sentry Mode", false, function(state)
+	-- Invokes Sentry RemoteFunction with true/false
+	EventsFolder.Sentry:InvokeServer(state)
+end)
+
+SuitControls.CreateToggle("Flight Mode", false, function(state)
+	-- Fires Flight RemoteEvent with "Toggle" and true/false
+	EventsFolder.Flight:FireServer("Toggle", state)
+end)
+
+SuitControls.CreateButton("Boost Flight", function()
+	EventsFolder.Flight:FireServer("Boost")
+end)
+
+-- // ACTIONS TAB // --
+
+Actions.CreateButton("Call Default Suit", function()
+	EventsFolder.Call:FireServer()
+end)
+
+-- Uses the Vantix Input component instead of a separate text box and button
+Actions.CreateInput("Call Custom Suit", "e.g. Mark 39", function(text)
+	if text and text ~= "" then
+		EventsFolder.Call:FireServer(text)
+	end
+end)
+
+Actions.CreateButton("Eject Suit", function()
+	EventsFolder.Eject:FireServer()
+end)
+
+Actions.CreateButton("Destruct Suit", function()
+	EventsFolder.Destruct:FireServer()
+end)
 
 -----------------------------------------------------------------
 -- // AUTO-DOWNLOAD VANTIX LOGO // --
 -----------------------------------------------------------------
--- This safely checks if your executor supports saving files, 
--- downloads your GitHub image, and applies it to the GUI automatically.
 pcall(function()
 	if isfile and writefile and getcustomasset and game.HttpGet then
 		local logoFileName = "VantixLogo.png"
 		local logoUrl = "https://raw.githubusercontent.com/Vantix-GUI/Vantix/21a8d4550ffebd9f90672290901183036d3ced02/Vantix-logo.png"
 		
-		-- Only download it if it hasn't been downloaded yet to save time
 		if not isfile(logoFileName) then
 			local imgData = game:HttpGet(logoUrl)
 			writefile(logoFileName, imgData)
 		end
 		
-		-- Apply it to the exposed LogoImage property
-		MyWindow.LogoImage.Image = getcustomasset(logoFileName)
+		IronManWindow.LogoImage.Image = getcustomasset(logoFileName)
 	end
 end)
