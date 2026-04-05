@@ -599,3 +599,23 @@ function Vantix.CreateWindow(titleText)
 
 	return Window
 end
+
+-----------------------------------------------------------------
+-- // HOW TO LOAD YOUR LOGO SAFELY // --
+-----------------------------------------------------------------
+-- 1. Create the Window
+local MyWindow = Vantix.CreateWindow("Vantix Hub")
+
+-- 2. Safely apply your custom image function to the exposed LogoImage property
+-- Example: 
+-- pcall(function() MyWindow.LogoImage.Image = getcustomasset("Vantix-logo.png") end)
+
+-----------------------------------------------------------------
+-- // EXAMPLE USAGE // --
+-----------------------------------------------------------------
+local MainTab = MyWindow.CreateTab("Home", "rbxassetid://3926305904")
+
+MainTab.CreateButton("Print Hello", function() print("Hello from Vantix!") end)
+MainTab.CreateToggle("Aura ESP", false, function(state) print("ESP is:", state) end)
+MainTab.CreateSlider("JumpPower", 50, 200, 50, function(value) print("JumpPower:", value) end)
+MainTab.CreateInput("Target Player", "Username...", function(text) print("Targeting:", text) end)
