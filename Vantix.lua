@@ -3,33 +3,23 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
--- [SAFETY CHECK] Ensure we are on the client
 local LocalPlayer = Players.LocalPlayer
-if not LocalPlayer and not RunService:IsStudio() then
-	warn("[Vantix] ERROR: This must be run in a LocalScript or a Client environment!")
-	return
-end
+if not LocalPlayer and not RunService:IsStudio() then return end
 
 -----------------------------------------------------------------
 -- // VANTIX THEME CONFIGURATION // --
 -----------------------------------------------------------------
 local Theme = {
-	-- Deep Blacks
 	MainBackground = Color3.fromRGB(12, 12, 14),
 	SidebarBackground = Color3.fromRGB(16, 16, 18),
 	ElementBackground = Color3.fromRGB(22, 22, 26),
 	ElementHover = Color3.fromRGB(30, 30, 36),
 	
-	-- Vantix Purple (#450083)
-	Accent = Color3.fromRGB(69, 0, 131), 
+	Accent = Color3.fromRGB(69, 0, 131), -- Vantix Purple
 	
-	-- Text & Details
 	Text = Color3.fromRGB(255, 255, 255),
 	TextMuted = Color3.fromRGB(150, 150, 160),
 	Stroke = Color3.fromRGB(40, 40, 45),
-	
-	-- Leave this blank here. You can set the Image property directly later using your custom file function.
-	Logo = "", 
 	
 	CornerRadius = UDim.new(0, 6),
 	AnimSpeed = 0.25
@@ -83,19 +73,11 @@ end
 function Vantix.CreateWindow(titleText)
 	local Window = {Tabs = {}}
 
-	-- [ROBUST PARENTING] Finds the safest place to put the GUI (works in Studio & Executors)
 	local TargetGuiParent
 	pcall(function() TargetGuiParent = game:GetService("CoreGui") end)
-	if not TargetGuiParent then
-		TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui", 5)
-	end
-	
-	if not TargetGuiParent then
-		warn("[Vantix] ERROR: Could not find PlayerGui or CoreGui!")
-		return
-	end
+	if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui", 5) end
+	if not TargetGuiParent then return end
 
-	-- [CLEANUP] Destroy any old Vantix GUIs to prevent overlapping/invisible blocks
 	local existingGui = TargetGuiParent:FindFirstChild("VantixGui")
 	if existingGui then existingGui:Destroy() end
 
@@ -106,7 +88,6 @@ function Vantix.CreateWindow(titleText)
 	ScreenGui.IgnoreGuiInset = true
 	ScreenGui.Parent = TargetGuiParent
 
-	-- Floating Toggle Button
 	local ToggleButton = Instance.new("TextButton")
 	ToggleButton.Size = UDim2.new(0, 50, 0, 50)
 	ToggleButton.Position = UDim2.new(0, 15, 0.5, -25)
@@ -127,7 +108,6 @@ function Vantix.CreateWindow(titleText)
 	ToggleStroke.Thickness = 2
 	ToggleStroke.Parent = ToggleButton
 
-	-- Main Window Frame
 	local MainFrame = Instance.new("Frame")
 	MainFrame.Name = "MainFrame"
 	MainFrame.Size = UDim2.new(0.9, 0, 0.8, 0) 
@@ -167,14 +147,13 @@ function Vantix.CreateWindow(titleText)
 	MainStroke.Thickness = 1
 	MainStroke.Parent = MainFrame
 
-	-- Top Bar
 	local TopBar = Instance.new("TextButton")
 	TopBar.Size = UDim2.new(1, 0, 0, 45)
 	TopBar.BackgroundTransparency = 1
 	TopBar.Text = ""
 	TopBar.Parent = MainFrame
 
-	-- Vantix Logo
+	-- Vantix Logo ImageLabel
 	local Logo = Instance.new("ImageLabel")
 	Logo.Name = "VantixLogo"
 	Logo.Size = UDim2.new(0, 26, 0, 26)
@@ -182,8 +161,7 @@ function Vantix.CreateWindow(titleText)
 	Logo.BackgroundTransparency = 1
 	Logo.Parent = TopBar
 	
-	-- Expose the Logo so you can safely set it using your custom file function later
-	Window.LogoImage = Logo 
+	Window.LogoImage = Logo -- Exposed for the auto-downloader
 
 	local Title = Instance.new("TextLabel")
 	Title.Size = UDim2.new(1, -100, 1, 0)
@@ -225,7 +203,6 @@ function Vantix.CreateWindow(titleText)
 
 	MakeDraggable(TopBar, MainFrame)
 
-	-- Sidebar
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Name = "Sidebar"
 	Sidebar.Size = UDim2.new(0.3, 0, 1, -45) 
@@ -259,7 +236,6 @@ function Vantix.CreateWindow(titleText)
 	SidebarPadding.PaddingTop = UDim.new(0, 10)
 	SidebarPadding.Parent = TabContainer
 
-	-- Content Container
 	local ContentContainer = Instance.new("Frame")
 	ContentContainer.Size = UDim2.new(0.7, 0, 1, -45) 
 	ContentContainer.Position = UDim2.new(0.3, 0, 0, 45)
@@ -268,7 +244,7 @@ function Vantix.CreateWindow(titleText)
 	ContentContainer.Parent = MainFrame
 
 	-- // WINDOW METHODS // --
-	function Window.CreateTab(tabName, iconId)
+	function Window.CreateTab(tabName)
 		local Tab = {}
 		
 		local TabButton = Instance.new("TextButton")
@@ -282,21 +258,9 @@ function Vantix.CreateWindow(titleText)
 		TabBtnCorner.CornerRadius = Theme.CornerRadius
 		TabBtnCorner.Parent = TabButton
 
-		local TextOffset = 15
-		if iconId then
-			local Icon = Instance.new("ImageLabel")
-			Icon.Size = UDim2.new(0, 18, 0, 18)
-			Icon.Position = UDim2.new(0, 10, 0.5, -9)
-			Icon.BackgroundTransparency = 1
-			Icon.Image = iconId
-			Icon.ImageColor3 = Theme.TextMuted
-			Icon.Parent = TabButton
-			TextOffset = 35 
-		end
-
 		local TabLabel = Instance.new("TextLabel")
-		TabLabel.Size = UDim2.new(1, -TextOffset, 1, 0)
-		TabLabel.Position = UDim2.new(0, TextOffset, 0, 0)
+		TabLabel.Size = UDim2.new(1, -15, 1, 0)
+		TabLabel.Position = UDim2.new(0, 15, 0, 0)
 		TabLabel.BackgroundTransparency = 1
 		TabLabel.Text = tabName
 		TabLabel.TextColor3 = Theme.TextMuted
@@ -331,9 +295,6 @@ function Vantix.CreateWindow(titleText)
 				otherTab.Page.Visible = false
 				Tween(otherTab.Button, {BackgroundColor3 = Theme.SidebarBackground}, 0.3)
 				Tween(otherTab.Label, {TextColor3 = Theme.TextMuted}, 0.3)
-				if otherTab.Button:FindFirstChild("ImageLabel") then
-					Tween(otherTab.Button.ImageLabel, {ImageColor3 = Theme.TextMuted}, 0.3)
-				end
 			end
 			
 			TabPage.Visible = true
@@ -342,16 +303,12 @@ function Vantix.CreateWindow(titleText)
 
 			Tween(TabButton, {BackgroundColor3 = Theme.Accent}, 0.3)
 			Tween(TabLabel, {TextColor3 = Theme.Text}, 0.3)
-			if TabButton:FindFirstChild("ImageLabel") then
-				Tween(TabButton.ImageLabel, {ImageColor3 = Theme.Text}, 0.3)
-			end
 		end)
 
 		if #Window.Tabs == 0 then
 			TabPage.Visible = true
 			TabButton.BackgroundColor3 = Theme.Accent
 			TabLabel.TextColor3 = Theme.Text
-			if TabButton:FindFirstChild("ImageLabel") then TabButton.ImageLabel.ImageColor3 = Theme.Text end
 		end
 
 		table.insert(Window.Tabs, {Button = TabButton, Label = TabLabel, Page = TabPage})
@@ -601,21 +558,32 @@ function Vantix.CreateWindow(titleText)
 end
 
 -----------------------------------------------------------------
--- // HOW TO LOAD YOUR LOGO SAFELY // --
+-- // EXAMPLE VANTIX USAGE // --
 -----------------------------------------------------------------
--- 1. Create the Window
 local MyWindow = Vantix.CreateWindow("Vantix Hub")
 
--- 2. Safely apply your custom image function to the exposed LogoImage property
--- Example: 
--- pcall(function() MyWindow.LogoImage.Image = getcustomasset("Vantix-logo.png") end)
-
------------------------------------------------------------------
--- // EXAMPLE USAGE // --
------------------------------------------------------------------
-local MainTab = MyWindow.CreateTab("Home", "rbxassetid://3926305904")
+-- Notice: CreateTab now only takes ONE argument (the name of the tab).
+local MainTab = MyWindow.CreateTab("Home")
+local SettingsTab = MyWindow.CreateTab("Settings")
 
 MainTab.CreateButton("Print Hello", function() print("Hello from Vantix!") end)
 MainTab.CreateToggle("Aura ESP", false, function(state) print("ESP is:", state) end)
 MainTab.CreateSlider("JumpPower", 50, 200, 50, function(value) print("JumpPower:", value) end)
-MainTab.CreateInput("Target Player", "Username...", function(text) print("Targeting:", text) end)
+SettingsTab.CreateInput("Target Player", "Username...", function(text) print("Targeting:", text) end)
+
+-----------------------------------------------------------------
+-- // AUTO-DOWNLOAD VANTIX LOGO // --
+-----------------------------------------------------------------
+pcall(function()
+	if isfile and writefile and getcustomasset and game.HttpGet then
+		local logoFileName = "VantixLogo.png"
+		local logoUrl = "https://raw.githubusercontent.com/Vantix-GUI/Vantix/21a8d4550ffebd9f90672290901183036d3ced02/Vantix-logo.png"
+		
+		if not isfile(logoFileName) then
+			local imgData = game:HttpGet(logoUrl)
+			writefile(logoFileName, imgData)
+		end
+		
+		MyWindow.LogoImage.Image = getcustomasset(logoFileName)
+	end
+end)
