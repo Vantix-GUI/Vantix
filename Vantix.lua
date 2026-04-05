@@ -575,4 +575,27 @@ function Vantix.CreateWindow(titleText)
 			TextBox.TextColor3 = Theme.Text
 			TextBox.Font = Enum.Font.Gotham
 			TextBox.TextSize = 12
-			TextBox.ClearTextOnFocu
+			TextBox.ClearTextOnFocus = false
+			TextBox.ClipsDescendants = true
+			TextBox.Parent = InputFrame
+
+			local BoxCorner = Instance.new("UICorner")
+			BoxCorner.CornerRadius = UDim.new(0, 4)
+			BoxCorner.Parent = TextBox
+
+			local BoxStroke = Instance.new("UIStroke")
+			BoxStroke.Color = Theme.Stroke
+			BoxStroke.Parent = TextBox
+
+			TextBox.Focused:Connect(function() Tween(BoxStroke, {Color = Theme.Accent}, 0.2) end)
+			TextBox.FocusLost:Connect(function()
+				Tween(BoxStroke, {Color = Theme.Stroke}, 0.2)
+				if callback then task.spawn(callback, TextBox.Text) end
+			end)
+		end
+
+		return Tab
+	end
+
+	return Window
+end
