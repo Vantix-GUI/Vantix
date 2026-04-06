@@ -929,13 +929,11 @@ function Vantix.CreateWindow(titleText)
 	return Window
 end
 
-return Vantix
 
 -----------------------------------------------------------------
 -- // EXAMPLE VANTIX v2 USAGE // --
 -- Delete or comment this section out when using as a module
 -----------------------------------------------------------------
---[[
 local VantixWindow = Vantix.CreateWindow("Vantix Hub v2")
 
 local MainTab = VantixWindow.CreateTab("Combat")
@@ -978,4 +976,3 @@ pcall(function()
 		VantixWindow.LogoImage.Image = getcustomasset(logoFileName)
 	end
 end)
-]]
