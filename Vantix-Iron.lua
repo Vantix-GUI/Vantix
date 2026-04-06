@@ -159,6 +159,7 @@ function Vantix.CreateWindow(titleText)
 	Logo.Size = UDim2.new(0, 26, 0, 26)
 	Logo.Position = UDim2.new(0, 15, 0.5, -13)
 	Logo.BackgroundTransparency = 1
+	Logo.ImageColor3 = Theme.Accent -- Tints the logo to match the Iron Man Red!
 	Logo.Parent = TopBar
 	
 	Window.LogoImage = Logo
